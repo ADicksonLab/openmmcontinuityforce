@@ -54,46 +54,68 @@ void ReferenceCalcExampleForceKernel::initialize(const System& system, const Exa
     // Initialize bond parameters.
     
     int numBonds = force.getNumBonds();
-    particle1.resize(numBonds);
-    particle2.resize(numBonds);
+    idxs.resize(numBonds);
+    npart.resize(numBonds);
     length.resize(numBonds);
     k.resize(numBonds);
     for (int i = 0; i < numBonds; i++)
-        force.getBondParameters(i, particle1[i], particle2[i], length[i], k[i]);
+        force.getBondParameters(i, idxs[i], npart[i], length[i], k[i]);
 }
 
 double ReferenceCalcExampleForceKernel::execute(ContextImpl& context, bool includeForces, bool includeEnergy) {
     vector<RealVec>& pos = extractPositions(context);
     vector<RealVec>& force = extractForces(context);
-    int numBonds = particle1.size();
+    int numBonds = npart.size();
     double energy = 0;
-    
+
     // Compute the interactions.
     
     for (int i = 0; i < numBonds; i++) {
-        int p1 = particle1[i];
-        int p2 = particle2[i];
-        RealVec delta = pos[p1]-pos[p2];
-        RealOpenMM r2 = delta.dot(delta);
-        RealOpenMM r = sqrt(r2);
-        RealOpenMM dr = (r-length[i]);
-        RealOpenMM dr2 = dr*dr;
-        energy += k[i]*dr2*dr2;
-        RealOpenMM dEdR = 4*k[i]*dr2*dr;
-        dEdR = (r > 0) ? (dEdR/r) : 0;
-        force[p1] -= delta*dEdR;
-        force[p2] += delta*dEdR;
+	  for (int at_idx = 0; at_idx < npart[i]; at_idx++) {
+		// find the closest distance from at_idx to the others
+		c_dist = -1;
+		c_idx = -1;
+		for (int at2 = 0; at2 < npart[i]; at2++) {
+		  if (at_idx != at2) {
+			// ignore periodic boundaries for now
+			RealVec delta = pos[idxs[i][at_idx]]-pos[idxs[i][at2]];
+			RealOpenMM r2 = delta.dot(delta);
+			RealOpenMM r = sqrt(r2);
+			if (r < c_dist || c_dist == -1) {
+			  c_dist = r;
+			  c_idx = at2;
+			}
+		  }
+		}
+		// if closest distance > length, apply an attractive force between at_idx and at2
+		if (c_dist > length[i]) {
+		  RealOpenMM dr = (c_dist-length[i]);
+		  RealOpenMM dr2 = dr*dr;
+		  if (includeEnergy) {
+			energy += k[i]*dr2;
+		  }
+		  if (includeForces) {
+			RealOpenMM dEdR = 2*k[i]*dr;
+			dEdR = (c_dist > 0) ? (dEdR/c_dist) : 0;
+			RealVec delta = pos[idxs[i][at_idx]]-pos[idxs[i][c_idx]];
+					
+			force[idxs[i][at_idx]] -= delta*dEdR;
+			force[idxs[i][c_idx]] += delta*dEdR;
+		  }
+		}
+	  }
     }
     return energy;
 }
 
 void ReferenceCalcExampleForceKernel::copyParametersToContext(ContextImpl& context, const ExampleForce& force) {
-    if (force.getNumBonds() != particle1.size())
+    if (force.getNumBonds() != npart.size())
         throw OpenMMException("updateParametersInContext: The number of Example bonds has changed");
     for (int i = 0; i < force.getNumBonds(); i++) {
-        int p1, p2;
-        force.getBondParameters(i, p1, p2, length[i], k[i]);
-        if (p1 != particle1[i] || p2 != particle2[i])
+        vector<int> test_idxs;
+        int test_npart;
+        force.getBondParameters(i, test_idxs, test_npart, length[i], k[i]);
+        if (test_npart != npart[i] || test_idxs != idxs[i])
             throw OpenMMException("updateParametersInContext: A particle index has changed");
     }
 }

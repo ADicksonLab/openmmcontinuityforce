@@ -41,23 +41,23 @@ using namespace std;
 ExampleForce::ExampleForce() {
 }
 
-int ExampleForce::addBond(int particle1, int particle2, double length, double k) {
-    bonds.push_back(BondInfo(particle1, particle2, length, k));
+int ExampleForce::addBond(std::vector<int> idxs, int npart, double length, double k) {
+    bonds.push_back(BondInfo(idxs, npart, length, k));
     return bonds.size()-1;
 }
 
-void ExampleForce::getBondParameters(int index, int& particle1, int& particle2, double& length, double& k) const {
+void ExampleForce::getBondParameters(int index, std::vector<int>& idxs, int& npart, double& length, double& k) const {
     ASSERT_VALID_INDEX(index, bonds);
-    particle1 = bonds[index].particle1;
-    particle2 = bonds[index].particle2;
+    idxs = bonds[index].idxs;
+    npart = bonds[index].npart;
     length = bonds[index].length;
     k = bonds[index].k;
 }
 
-void ExampleForce::setBondParameters(int index, int particle1, int particle2, double length, double k) {
+void ExampleForce::setBondParameters(int index, std::vector<int> idxs, int npart, double length, double k) {
     ASSERT_VALID_INDEX(index, bonds);
-    bonds[index].particle1 = particle1;
-    bonds[index].particle2 = particle2;
+    bonds[index].idxs = idxs;
+    bonds[index].npart = npart;
     bonds[index].length = length;
     bonds[index].k = k;
 }

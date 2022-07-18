@@ -65,7 +65,7 @@ public:
      * @param k         the force constant for the bond, measured in kJ/mol/nm^4
      * @return the index of the bond that was added
      */
-    int addBond(int particle1, int particle2, double length, double k);
+    int addBond(std::vector<int> idxs , int npart, double length, double k);
     /**
      * Get the force field parameters for a bond term.
      * 
@@ -75,7 +75,7 @@ public:
      * @param length    the equilibrium length of the bond, measured in nm
      * @param k         the harmonic force constant for the bond, measured in kJ/mol/nm^4
      */
-    void getBondParameters(int index, int& particle1, int& particle2, double& length, double& k) const;
+    void getBondParameters(int index, std::vector<int>& idxs, int& npart, double& length, double& k) const;
     /**
      * Set the force field parameters for a bond term.
      * 
@@ -85,7 +85,7 @@ public:
      * @param length    the equilibrium length of the bond, measured in nm
      * @param k         the harmonic force constant for the bond, measured in kJ/mol/nm^4
      */
-    void setBondParameters(int index, int particle1, int particle2, double length, double k);
+    void setBondParameters(int index, std::vector<int> idxs, int npart, double length, double k);
     /**
      * Update the per-bond parameters in a Context to match those stored in this Force object.  This method provides
      * an efficient method to update certain parameters in an existing Context without needing to reinitialize it.
@@ -117,15 +117,17 @@ private:
  */
 class ExampleForce::BondInfo {
 public:
-    int particle1, particle2;
+    std::vector<int> idxs;
+    int npart;
     double length, k;
     BondInfo() {
-        particle1 = particle2 = -1;
-        length = k = 0.0;
+  	    idxs = {};
+	    npart = 0;
+		length = k = 0.0;
     }
-    BondInfo(int particle1, int particle2, double length, double k) :
-        particle1(particle1), particle2(particle2), length(length), k(k) {
-    }
+  BondInfo(std::vector<int> idxs, int npart, double length, double k) :
+	idxs(idxs), npart(npart), length(length), k(k) {
+  }
 };
 
 } // namespace ExamplePlugin

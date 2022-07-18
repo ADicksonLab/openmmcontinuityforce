@@ -46,10 +46,15 @@ void ExampleForceProxy::serialize(const void* object, SerializationNode& node) c
     const ExampleForce& force = *reinterpret_cast<const ExampleForce*>(object);
     SerializationNode& bonds = node.createChildNode("Bonds");
     for (int i = 0; i < force.getNumBonds(); i++) {
-        int particle1, particle2;
-        double distance, k;
-        force.getBondParameters(i, particle1, particle2, distance, k);
-        bonds.createChildNode("Bond").setIntProperty("p1", particle1).setIntProperty("p2", particle2).setDoubleProperty("d", distance).setDoubleProperty("k", k);
+	  vector<int> idxs;
+	  int npart;
+	  double distance, k;
+	  force.getBondParameters(i, idxs, npart, distance, k);
+	  SerializationNode& bond = bonds.createChildNode("Bond");
+	  bond.setIntProperty("npart", npart).setDoubleProperty("d", distance).setDoubleProperty("k", k);
+	  for (int idx = 0; idx < npart; idx++) {
+		bond.createChildNode("Index").setIntProperty("idx",idxs[idx]);
+	  }
     }
 }
 
@@ -61,7 +66,12 @@ void* ExampleForceProxy::deserialize(const SerializationNode& node) const {
         const SerializationNode& bonds = node.getChildNode("Bonds");
         for (int i = 0; i < (int) bonds.getChildren().size(); i++) {
             const SerializationNode& bond = bonds.getChildren()[i];
-            force->addBond(bond.getIntProperty("p1"), bond.getIntProperty("p2"), bond.getDoubleProperty("d"), bond.getDoubleProperty("k"));
+			vector<int> idxs;
+			for (int idx = 0; idx < (int) bond.getChildren().size(); idx++) {
+			  const SerializationNode& at_idx = bond.getChildren()[idx];
+			  idxs[idx] = bond.getIntProperty("idx");
+			}
+            force->addBond(idxs, bond.getIntProperty("npart"), bond.getDoubleProperty("d"), bond.getDoubleProperty("k"));
         }
     }
     catch (...) {

@@ -70,7 +70,8 @@ public:
     void copyParametersToContext(OpenMM::ContextImpl& context, const ExampleForce& force);
 private:
     int numBonds;
-    std::vector<int> particle1, particle2;
+    std::vector<std::vector<int>> idxs;
+    std::vector<int> npart;
     std::vector<double> length, k;
 };
 

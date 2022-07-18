@@ -32,7 +32,7 @@ import simtk.unit as unit
 /*
  * Add units to function outputs.
 */
-%pythonappend ExamplePlugin::ExampleForce::getBondParameters(int index, int& particle1, int& particle2,
+%pythonappend ExamplePlugin::ExampleForce::getBondParameters(int index, vector<int>& idxs, int& npart,
                                                              double& length, double& k) const %{
     val[2] = unit.Quantity(val[2], unit.nanometer)
     val[3] = unit.Quantity(val[3], unit.kilojoule_per_mole/unit.nanometer**4)
@@ -59,9 +59,9 @@ public:
 
     int getNumBonds() const;
 
-    int addBond(int particle1, int particle2, double length, double k);
+    int addBond(std::vector<int> idxs, int npart, double length, double k);
 
-    void setBondParameters(int index, int particle1, int particle2, double length, double k);
+    void setBondParameters(int index, std::vector<int> idxs, int npart, double length, double k);
 
     void updateParametersInContext(OpenMM::Context& context);
 
@@ -69,13 +69,13 @@ public:
      * The reference parameters to this function are output values.
      * Marking them as such will cause swig to return a tuple.
     */
-    %apply int& OUTPUT {int& particle1};
-    %apply int& OUTPUT {int& particle2};
+    %apply std::vector<int>& OUTPUT {std::vector<int>& idxs};
+    %apply int& OUTPUT {int& npart};
     %apply double& OUTPUT {double& length};
     %apply double& OUTPUT {double& k};
-    void getBondParameters(int index, int& particle1, int& particle2, double& length, double& k) const;
-    %clear int& particle1;
-    %clear int& particle2;
+    void getBondParameters(int index, std::vector<int>& idxs, int& npart, double& length, double& k) const;
+    %clear std::vector<int>& idxs;
+    %clear int& npart;
     %clear double& length;
     %clear double& k;
 

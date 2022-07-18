@@ -46,10 +46,14 @@ void testSerialization() {
     // Create a Force.
 
     ExampleForce force;
-    force.addBond(0, 1, 1.0, 2.0);
-    force.addBond(0, 2, 2.0, 2.1);
-    force.addBond(2, 3, 3.0, 2.2);
-    force.addBond(5, 1, 4.0, 2.3);
+	vector<int> idxs1 = {0,1,2,3};
+    force.addBond(idxs1, 4, 1.0, 2.0);
+	vector<int> idxs2 = {10,11,12};
+    force.addBond(idxs2, 3, 2.0, 2.1);
+	vector<int> idxs3 = {19,4,16,12,7};
+    force.addBond(idxs3, 5, 3.0, 2.2);
+	vector<int> idxs4 = {29,300,301,5,3,0};
+    force.addBond(idxs4, 6, 4.0, 2.3);
 
     // Serialize and then deserialize it.
 
@@ -62,14 +66,14 @@ void testSerialization() {
     ExampleForce& force2 = *copy;
     ASSERT_EQUAL(force.getNumBonds(), force2.getNumBonds());
     for (int i = 0; i < force.getNumBonds(); i++) {
-        int a1, a2, b1, b2;
-        double da, db, ka, kb;
-        force.getBondParameters(i, a1, a2, da, ka);
-        force2.getBondParameters(i, b1, b2, db, kb);
-        ASSERT_EQUAL(a1, b1);
-        ASSERT_EQUAL(a2, b2);
-        ASSERT_EQUAL(da, db);
-        ASSERT_EQUAL(ka, kb);
+	  vector<int> a1, a2, b1, b2;
+	  double da, db, ka, kb;
+	  force.getBondParameters(i, a1, a2, da, ka);
+	  force2.getBondParameters(i, b1, b2, db, kb);
+	  ASSERT_EQUAL(a1, b1);
+	  ASSERT_EQUAL(a2, b2);
+	  ASSERT_EQUAL(da, db);
+	  ASSERT_EQUAL(ka, kb);
     }
 }
 

@@ -66,12 +66,16 @@ void testSerialization() {
     ExampleForce& force2 = *copy;
     ASSERT_EQUAL(force.getNumBonds(), force2.getNumBonds());
     for (int i = 0; i < force.getNumBonds(); i++) {
-	  vector<int> a1, a2, b1, b2;
+	  vector<int> a1, b1;
+	  int a2, b2;
 	  double da, db, ka, kb;
 	  force.getBondParameters(i, a1, a2, da, ka);
 	  force2.getBondParameters(i, b1, b2, db, kb);
-	  ASSERT_EQUAL(a1, b1);
+
 	  ASSERT_EQUAL(a2, b2);
+	  for (int idx = 0; idx < a2; idx++) {
+		ASSERT_EQUAL(a1[idx], b1[idx]);
+	  }
 	  ASSERT_EQUAL(da, db);
 	  ASSERT_EQUAL(ka, kb);
     }

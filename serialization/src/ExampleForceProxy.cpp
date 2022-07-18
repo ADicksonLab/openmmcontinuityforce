@@ -66,10 +66,10 @@ void* ExampleForceProxy::deserialize(const SerializationNode& node) const {
         const SerializationNode& bonds = node.getChildNode("Bonds");
         for (int i = 0; i < (int) bonds.getChildren().size(); i++) {
             const SerializationNode& bond = bonds.getChildren()[i];
-			vector<int> idxs;
+			vector<int> idxs ((int) bond.getChildren().size(), -1);
 			for (int idx = 0; idx < (int) bond.getChildren().size(); idx++) {
 			  const SerializationNode& at_idx = bond.getChildren()[idx];
-			  idxs[idx] = bond.getIntProperty("idx");
+			  idxs[idx] = at_idx.getIntProperty("idx");
 			}
             force->addBond(idxs, bond.getIntProperty("npart"), bond.getDoubleProperty("d"), bond.getDoubleProperty("k"));
         }

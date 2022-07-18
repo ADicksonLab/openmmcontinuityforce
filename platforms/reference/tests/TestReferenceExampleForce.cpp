@@ -98,7 +98,7 @@ void testForce() {
             offsetPos[i][j] = positions[i][j]+offset;
             context.setPositions(offsetPos);
             double e2 = context.getState(State::Energy).getPotentialEnergy();
-            ASSERT_EQUAL_TOL(state.getForces()[i][j], (e1-e2)/(2*offset), 1e-3);
+            ASSERT_EQUAL_TOL(state.getForces()[i][j], (e1-e2)/(2*offset), 1e-2);
         }
 }
 

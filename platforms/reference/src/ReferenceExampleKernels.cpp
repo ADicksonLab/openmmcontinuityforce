@@ -35,6 +35,7 @@
 #include "openmm/internal/ContextImpl.h"
 #include "openmm/reference/RealVec.h"
 #include "openmm/reference/ReferencePlatform.h"
+#include<algorithm>
 
 using namespace ExamplePlugin;
 using namespace OpenMM;
@@ -86,7 +87,7 @@ double ReferenceCalcExampleForceKernel::execute(ContextImpl& context, bool inclu
 	  vector<int> comp_idxs( npart[i], -1);
 
 	  int curr_comp = 0;
-	  while (min_element(comp_idxs.begin(), comp_idxs.end()) == -1) {
+	  while (*std::min_element(comp_idxs.begin(), comp_idxs.end()) == -1) {
 		// assign the first -1 index element to curr_comp
 		for (int at = 0; at < npart[i]; at++) {
 		  if (comp_idxs[at] == -1) {

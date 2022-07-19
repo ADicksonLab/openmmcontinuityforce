@@ -24,9 +24,9 @@ steps:
 
 1. Clone this repository to your own machine.
 
-2. Create a directory in which to build the plugin.  I suggest <openmmcontinuityforce>/build.
+2. Create a directory in which to build the plugin.  I suggest openmmcontinuityforce/build.
 
-3. Change to this directory, and run cmake: `cmake ..` and open ccmake: `ccmake ..`
+3. Change to the build directory, and run cmake: `cmake ..` and open ccmake: `ccmake ..`
 
 4. Set OPENMM_DIR to point to the directory where OpenMM is installed.  This is needed to locate
 the OpenMM header files and libraries.  If you are using CONDA, this directory will be something

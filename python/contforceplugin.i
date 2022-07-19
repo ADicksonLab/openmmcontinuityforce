@@ -1,4 +1,4 @@
-%module exampleplugin
+%module contforceplugin
 
 %import(module="simtk.openmm") "swig/OpenMMSwigHeaders.i"
 %include "swig/typemaps.i"
@@ -16,7 +16,7 @@ namespace std {
 };
 
 %{
-#include "ExampleForce.h"
+#include "ContForce.h"
 #include "OpenMM.h"
 #include "OpenMMAmoeba.h"
 #include "OpenMMDrude.h"
@@ -32,7 +32,7 @@ import simtk.unit as unit
 /*
  * Add units to function outputs.
 */
-%pythonappend ExamplePlugin::ExampleForce::getBondParameters(int index, vector<int>& idxs, int& npart,
+%pythonappend ContForcePlugin::ContForce::getBondParameters(int index, vector<int>& idxs, int& npart,
                                                              double& length, double& k) const %{
     val[2] = unit.Quantity(val[2], unit.nanometer)
     val[3] = unit.Quantity(val[3], unit.kilojoule_per_mole/unit.nanometer**4)
@@ -51,11 +51,11 @@ import simtk.unit as unit
 }
 
 
-namespace ExamplePlugin {
+namespace ContForcePlugin {
 
-class ExampleForce : public OpenMM::Force {
+class ContForce : public OpenMM::Force {
 public:
-    ExampleForce();
+    ContForce();
 
     int getNumBonds() const;
 
@@ -80,15 +80,15 @@ public:
     %clear double& k;
 
     /*
-     * Add methods for casting a Force to an ExampleForce.
+     * Add methods for casting a Force to an ContForce.
     */
     %extend {
-        static ExamplePlugin::ExampleForce& cast(OpenMM::Force& force) {
-            return dynamic_cast<ExamplePlugin::ExampleForce&>(force);
+        static ContForcePlugin::ContForce& cast(OpenMM::Force& force) {
+            return dynamic_cast<ContForcePlugin::ContForce&>(force);
         }
 
         static bool isinstance(OpenMM::Force& force) {
-            return (dynamic_cast<ExamplePlugin::ExampleForce*>(&force) != NULL);
+            return (dynamic_cast<ContForcePlugin::ContForce*>(&force) != NULL);
         }
     }
 };

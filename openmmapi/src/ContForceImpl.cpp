@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- *
- *                                OpenMMExample                                 *
+ *                                   OpenMM                                   *
  * -------------------------------------------------------------------------- *
  * This is part of the OpenMM molecular simulation toolkit originating from   *
  * Simbios, the NIH National Center for Physics-Based Simulation of           *
@@ -29,54 +29,45 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-#include "ExampleForceProxy.h"
-#include "ExampleForce.h"
-#include "openmm/serialization/SerializationNode.h"
+#ifdef WIN32
+  #define _USE_MATH_DEFINES // Needed to get M_PI
+#endif
+#include "internal/ContForceImpl.h"
+#include "ContForceKernels.h"
+#include "openmm/OpenMMException.h"
+#include "openmm/internal/ContextImpl.h"
+#include <cmath>
+#include <map>
+#include <set>
 #include <sstream>
 
-using namespace ExamplePlugin;
+using namespace ContForcePlugin;
 using namespace OpenMM;
 using namespace std;
 
-ExampleForceProxy::ExampleForceProxy() : SerializationProxy("ExampleForce") {
+ContForceImpl::ContForceImpl(const ContForce& owner) : owner(owner) {
 }
 
-void ExampleForceProxy::serialize(const void* object, SerializationNode& node) const {
-    node.setIntProperty("version", 1);
-    const ExampleForce& force = *reinterpret_cast<const ExampleForce*>(object);
-    SerializationNode& bonds = node.createChildNode("Bonds");
-    for (int i = 0; i < force.getNumBonds(); i++) {
-	  vector<int> idxs;
-	  int npart;
-	  double distance, k;
-	  force.getBondParameters(i, idxs, npart, distance, k);
-	  SerializationNode& bond = bonds.createChildNode("Bond");
-	  bond.setIntProperty("npart", npart).setDoubleProperty("d", distance).setDoubleProperty("k", k);
-	  for (int idx = 0; idx < npart; idx++) {
-		bond.createChildNode("Index").setIntProperty("idx",idxs[idx]);
-	  }
-    }
+ContForceImpl::~ContForceImpl() {
 }
 
-void* ExampleForceProxy::deserialize(const SerializationNode& node) const {
-    if (node.getIntProperty("version") != 1)
-        throw OpenMMException("Unsupported version number");
-    ExampleForce* force = new ExampleForce();
-    try {
-        const SerializationNode& bonds = node.getChildNode("Bonds");
-        for (int i = 0; i < (int) bonds.getChildren().size(); i++) {
-            const SerializationNode& bond = bonds.getChildren()[i];
-			vector<int> idxs ((int) bond.getChildren().size(), -1);
-			for (int idx = 0; idx < (int) bond.getChildren().size(); idx++) {
-			  const SerializationNode& at_idx = bond.getChildren()[idx];
-			  idxs[idx] = at_idx.getIntProperty("idx");
-			}
-            force->addBond(idxs, bond.getIntProperty("npart"), bond.getDoubleProperty("d"), bond.getDoubleProperty("k"));
-        }
-    }
-    catch (...) {
-        delete force;
-        throw;
-    }
-    return force;
+void ContForceImpl::initialize(ContextImpl& context) {
+    kernel = context.getPlatform().createKernel(CalcContForceKernel::Name(), context);
+    kernel.getAs<CalcContForceKernel>().initialize(context.getSystem(), owner);
+}
+
+double ContForceImpl::calcForcesAndEnergy(ContextImpl& context, bool includeForces, bool includeEnergy, int groups) {
+    if ((groups&(1<<owner.getForceGroup())) != 0)
+        return kernel.getAs<CalcContForceKernel>().execute(context, includeForces, includeEnergy);
+    return 0.0;
+}
+
+std::vector<std::string> ContForceImpl::getKernelNames() {
+    std::vector<std::string> names;
+    names.push_back(CalcContForceKernel::Name());
+    return names;
+}
+
+void ContForceImpl::updateParametersInContext(ContextImpl& context) {
+    kernel.getAs<CalcContForceKernel>().copyParametersToContext(context, owner);
 }

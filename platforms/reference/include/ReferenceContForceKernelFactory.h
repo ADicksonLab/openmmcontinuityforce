@@ -1,5 +1,8 @@
+#ifndef OPENMM_REFERENCECONTFORCEKERNELFACTORY_H_
+#define OPENMM_REFERENCECONTFORCEKERNELFACTORY_H_
+
 /* -------------------------------------------------------------------------- *
- *                                OpenMMExample                                 *
+ *                                   OpenMM                                   *
  * -------------------------------------------------------------------------- *
  * This is part of the OpenMM molecular simulation toolkit originating from   *
  * Simbios, the NIH National Center for Physics-Based Simulation of           *
@@ -29,34 +32,19 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-#ifdef WIN32
-#include <windows.h>
-#include <sstream>
-#else
-#include <dlfcn.h>
-#include <dirent.h>
-#include <cstdlib>
-#endif
+#include "openmm/KernelFactory.h"
 
-#include "ExampleForce.h"
-#include "ExampleForceProxy.h"
-#include "openmm/serialization/SerializationProxy.h"
+namespace OpenMM {
 
-#if defined(WIN32)
-    #include <windows.h>
-    extern "C" OPENMM_EXPORT_EXAMPLE void registerExampleSerializationProxies();
-    BOOL WINAPI DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
-        if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-            registerExampleSerializationProxies();
-        return TRUE;
-    }
-#else
-    extern "C" void __attribute__((constructor)) registerExampleSerializationProxies();
-#endif
+/**
+ * This KernelFactory creates kernels for the reference implementation of the ContForce plugin.
+ */
 
-using namespace ExamplePlugin;
-using namespace OpenMM;
+class ReferenceContForceKernelFactory : public KernelFactory {
+public:
+    KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
+};
 
-extern "C" OPENMM_EXPORT_EXAMPLE void registerExampleSerializationProxies() {
-    SerializationProxy::registerProxy(typeid(ExampleForce), new ExampleForceProxy());
-}
+} // namespace OpenMM
+
+#endif /*OPENMM_REFERENCECONTFORCEKERNELFACTORY_H_*/

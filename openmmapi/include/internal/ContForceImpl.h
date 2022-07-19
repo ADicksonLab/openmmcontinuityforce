@@ -1,5 +1,5 @@
-#ifndef OPENMM_REFERENCEEXAMPLEKERNELFACTORY_H_
-#define OPENMM_REFERENCEEXAMPLEKERNELFACTORY_H_
+#ifndef OPENMM_CONTFORCEIMPL_H_
+#define OPENMM_CONTFORCEIMPL_H_
 
 /* -------------------------------------------------------------------------- *
  *                                   OpenMM                                   *
@@ -32,19 +32,43 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-#include "openmm/KernelFactory.h"
+#include "ContForce.h"
+#include "openmm/internal/ForceImpl.h"
+#include "openmm/Kernel.h"
+#include <utility>
+#include <set>
+#include <string>
 
-namespace OpenMM {
+namespace ContForcePlugin {
+
+class System;
 
 /**
- * This KernelFactory creates kernels for the reference implementation of the Example plugin.
+ * This is the internal implementation of ContForce.
  */
 
-class ReferenceExampleKernelFactory : public KernelFactory {
+class OPENMM_EXPORT_EXAMPLE ContForceImpl : public OpenMM::ForceImpl {
 public:
-    KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
+    ContForceImpl(const ContForce& owner);
+    ~ContForceImpl();
+    void initialize(OpenMM::ContextImpl& context);
+    const ContForce& getOwner() const {
+        return owner;
+    }
+    void updateContextState(OpenMM::ContextImpl& context, bool& forcesInvalid) {
+        // This force field doesn't update the state directly.
+    }
+    double calcForcesAndEnergy(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy, int groups);
+    std::map<std::string, double> getDefaultParameters() {
+        return std::map<std::string, double>(); // This force field doesn't define any parameters.
+    }
+    std::vector<std::string> getKernelNames();
+    void updateParametersInContext(OpenMM::ContextImpl& context);
+private:
+    const ContForce& owner;
+    OpenMM::Kernel kernel;
 };
 
-} // namespace OpenMM
+} // namespace ContForcePlugin
 
-#endif /*OPENMM_REFERENCEEXAMPLEKERNELFACTORY_H_*/
+#endif /*OPENMM_CONTFORCEIMPL_H_*/

@@ -1,5 +1,5 @@
-#ifndef REFERENCE_EXAMPLE_KERNELS_H_
-#define REFERENCE_EXAMPLE_KERNELS_H_
+#ifndef CONT_FORCE_KERNELS_H_
+#define CONT_FORCE_KERNELS_H_
 
 /* -------------------------------------------------------------------------- *
  *                                   OpenMM                                   *
@@ -32,26 +32,28 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-#include "ExampleKernels.h"
+#include "ContForce.h"
+#include "openmm/KernelImpl.h"
 #include "openmm/Platform.h"
-#include <vector>
+#include "openmm/System.h"
+#include <string>
 
-namespace ExamplePlugin {
+namespace ContForcePlugin {
 
-/**
- * This kernel is invoked by ExampleForce to calculate the forces acting on the system and the energy of the system.
- */
-class ReferenceCalcExampleForceKernel : public CalcExampleForceKernel {
+class CalcContForceKernel : public OpenMM::KernelImpl {
 public:
-    ReferenceCalcExampleForceKernel(std::string name, const OpenMM::Platform& platform) : CalcExampleForceKernel(name, platform) {
+    static std::string Name() {
+        return "CalcContForce";
+    }
+    CalcContForceKernel(std::string name, const OpenMM::Platform& platform) : OpenMM::KernelImpl(name, platform) {
     }
     /**
      * Initialize the kernel.
      * 
      * @param system     the System this kernel will be applied to
-     * @param force      the ExampleForce this kernel will be used for
+     * @param force      the ContForce this kernel will be used for
      */
-    void initialize(const OpenMM::System& system, const ExampleForce& force);
+    virtual void initialize(const OpenMM::System& system, const ContForce& force) = 0;
     /**
      * Execute the kernel to calculate the forces and/or energy.
      *
@@ -60,21 +62,16 @@ public:
      * @param includeEnergy  true if the energy should be calculated
      * @return the potential energy due to the force
      */
-    double execute(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy);
+    virtual double execute(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy) = 0;
     /**
      * Copy changed parameters over to a context.
      *
      * @param context    the context to copy parameters to
-     * @param force      the ExampleForce to copy the parameters from
+     * @param force      the ContForce to copy the parameters from
      */
-    void copyParametersToContext(OpenMM::ContextImpl& context, const ExampleForce& force);
-private:
-    int numBonds;
-    std::vector<std::vector<int>> idxs;
-    std::vector<int> npart;
-    std::vector<double> length, k;
+    virtual void copyParametersToContext(OpenMM::ContextImpl& context, const ContForce& force) = 0;
 };
 
-} // namespace ExamplePlugin
+} // namespace ContForcePlugin
 
-#endif /*REFERENCE_EXAMPLE_KERNELS_H_*/
+#endif /*CONT_FORCE_KERNELS_H_*/

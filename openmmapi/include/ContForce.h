@@ -1,5 +1,5 @@
-#ifndef OPENMM_EXAMPLEFORCE_H_
-#define OPENMM_EXAMPLEFORCE_H_
+#ifndef OPENMM_CONTFORCE_H_
+#define OPENMM_CONTFORCE_H_
 
 /* -------------------------------------------------------------------------- *
  *                                   OpenMM                                   *
@@ -37,19 +37,14 @@
 #include <vector>
 #include "internal/windowsExportExample.h"
 
-namespace ExamplePlugin {
+namespace ContForcePlugin {
 
-/**
- * This class implements an anharmonic bond force of the form E(r)=k*(r-length)^4.  It exists to
- * serve as an example of how to write plugins.
- */
-
-class OPENMM_EXPORT_EXAMPLE ExampleForce : public OpenMM::Force {
+class OPENMM_EXPORT_EXAMPLE ContForce : public OpenMM::Force {
 public:
     /**
-     * Create an ExampleForce.
+     * Create a ContForce object.
      */
-    ExampleForce();
+    ContForce();
     /**
      * Get the number of bond stretch terms in the potential function
      */
@@ -115,7 +110,7 @@ private:
  * This is an internal class used to record information about a bond.
  * @private
  */
-class ExampleForce::BondInfo {
+class ContForce::BondInfo {
 public:
     std::vector<int> idxs;
     int npart;
@@ -130,6 +125,6 @@ public:
   }
 };
 
-} // namespace ExamplePlugin
+} // namespace ContForcePlugin
 
-#endif /*OPENMM_EXAMPLEFORCE_H_*/
+#endif /*OPENMM_CONTFORCE_H_*/

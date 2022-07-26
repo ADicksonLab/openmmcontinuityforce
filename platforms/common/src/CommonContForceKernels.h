@@ -41,7 +41,7 @@ namespace ContForcePlugin {
 /**
  * This kernel is invoked by ContForce to calculate the forces acting on the system and the energy of the system.
  */
-class CommonCalcContForceForceKernel : public CalcContForceKernel {
+class CommonCalcContForceKernel : public CalcContForceKernel {
 public:
     CommonCalcContForceKernel(std::string name, const OpenMM::Platform& platform, OpenMM::ComputeContext& cc, const OpenMM::System& system) :
             CalcContForceKernel(name, platform), hasInitializedKernel(false), cc(cc), system(system) {
@@ -50,7 +50,7 @@ public:
      * Initialize the kernel.
      * 
      * @param system     the System this kernel will be applied to
-     * @param force      the ExampleForce this kernel will be used for
+     * @param force      the ContForce this kernel will be used for
      */
     void initialize(const OpenMM::System& system, const ContForce& force);
     /**
@@ -66,7 +66,7 @@ public:
      * Copy changed parameters over to a context.
      *
      * @param context    the context to copy parameters to
-     * @param force      the ExampleForce to copy the parameters from
+     * @param force      the ContForce to copy the parameters from
      */
     void copyParametersToContext(OpenMM::ContextImpl& context, const ContForce& force);
 private:

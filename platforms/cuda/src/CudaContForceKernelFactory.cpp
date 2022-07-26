@@ -31,14 +31,14 @@
 
 #include <exception>
 
-#include "CudaExampleKernelFactory.h"
-#include "CommonExampleKernels.h"
+#include "CudaContForceKernelFactory.h"
+#include "CommonContForceKernels.h"
 #include "openmm/cuda/CudaContext.h"
 #include "openmm/internal/windowsExport.h"
 #include "openmm/internal/ContextImpl.h"
 #include "openmm/OpenMMException.h"
 
-using namespace ExamplePlugin;
+using namespace ContForcePlugin;
 using namespace OpenMM;
 
 extern "C" OPENMM_EXPORT void registerPlatforms() {
@@ -47,15 +47,15 @@ extern "C" OPENMM_EXPORT void registerPlatforms() {
 extern "C" OPENMM_EXPORT void registerKernelFactories() {
     try {
         Platform& platform = Platform::getPlatformByName("CUDA");
-        CudaExampleKernelFactory* factory = new CudaExampleKernelFactory();
-        platform.registerKernelFactory(CalcExampleForceKernel::Name(), factory);
+        CudaContForceKernelFactory* factory = new CudaContForceKernelFactory();
+        platform.registerKernelFactory(CalcContForceKernel::Name(), factory);
     }
     catch (std::exception ex) {
         // Ignore
     }
 }
 
-extern "C" OPENMM_EXPORT void registerExampleCudaKernelFactories() {
+extern "C" OPENMM_EXPORT void registerContForceCudaKernelFactories() {
     try {
         Platform::getPlatformByName("CUDA");
     }
@@ -65,9 +65,9 @@ extern "C" OPENMM_EXPORT void registerExampleCudaKernelFactories() {
     registerKernelFactories();
 }
 
-KernelImpl* CudaExampleKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
+KernelImpl* CudaContForceKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
     CudaContext& cu = *static_cast<CudaPlatform::PlatformData*>(context.getPlatformData())->contexts[0];
-    if (name == CalcExampleForceKernel::Name())
-        return new CommonCalcExampleForceKernel(name, platform, cu, context.getSystem());
+    if (name == CalcContForceKernel::Name())
+        return new CommonCalcContForceKernel(name, platform, cu, context.getSystem());
     throw OpenMMException((std::string("Tried to create kernel with illegal kernel name '")+name+"'").c_str());
 }

@@ -5,7 +5,7 @@
 # Collect up information about the version of the OpenMM library we're building
 # and make it available to the code so it can be built into the binaries.
 
-SET(EXAMPLE_CUDA_LIBRARY_NAME ExamplePluginCUDA)
+SET(EXAMPLE_CUDA_LIBRARY_NAME ContForcePluginCUDA)
 
 SET(SHARED_TARGET ${EXAMPLE_CUDA_LIBRARY_NAME})
 
@@ -32,7 +32,7 @@ FOREACH(subdir ${OPENMM_SOURCE_SUBDIRS})
     SET(SOURCE_INCLUDE_FILES ${SOURCE_INCLUDE_FILES} ${incl_files})
 ENDFOREACH(subdir)
 
-SET(COMMON_KERNELS_CPP ${CMAKE_CURRENT_BINARY_DIR}/../common/src/CommonExampleKernelSources.cpp)
+SET(COMMON_KERNELS_CPP ${CMAKE_CURRENT_BINARY_DIR}/../common/src/CommonContForceKernelSources.cpp)
 SET(SOURCE_FILES ${SOURCE_FILES} ${COMMON_KERNELS_CPP})
 
 INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/src)

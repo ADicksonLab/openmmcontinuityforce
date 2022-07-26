@@ -1,5 +1,5 @@
-#ifndef OPENMM_COMMONEXAMPLEKERNELSOURCES_H_
-#define OPENMM_COMMONEXAMPLEKERNELSOURCES_H_
+#ifndef COMMON_CONTFORCE_KERNELS_H_
+#define COMMON_CONTFORCE_KERNELS_H_
 
 /* -------------------------------------------------------------------------- *
  *                                   OpenMM                                   *
@@ -9,7 +9,7 @@
  * Biological Structures at Stanford, funded under the NIH Roadmap for        *
  * Medical Research, grant U54 GM072970. See https://simtk.org.               *
  *                                                                            *
- * Portions copyright (c) 2014 Stanford University and the Authors.           *
+ * Portions copyright (c) 2014-2021 Stanford University and the Authors.      *
  * Authors: Peter Eastman                                                     *
  * Contributors:                                                              *
  *                                                                            *
@@ -32,21 +32,51 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-#include <string>
+#include "ContForceKernels.h"
+#include "openmm/common/ComputeContext.h"
+#include "openmm/common/ComputeArray.h"
 
-namespace ExamplePlugin {
+namespace ContForcePlugin {
 
 /**
- * This class is a central holding place for the source code of common kernels.
- * The CMake build script inserts declarations into it based on the .cc files in the
- * kernels subfolder.
+ * This kernel is invoked by ContForce to calculate the forces acting on the system and the energy of the system.
  */
-
-class CommonExampleKernelSources {
+class CommonCalcContForceForceKernel : public CalcContForceKernel {
 public:
-@KERNEL_FILE_DECLARATIONS@
+    CommonCalcContForceKernel(std::string name, const OpenMM::Platform& platform, OpenMM::ComputeContext& cc, const OpenMM::System& system) :
+            CalcContForceKernel(name, platform), hasInitializedKernel(false), cc(cc), system(system) {
+    }
+    /**
+     * Initialize the kernel.
+     * 
+     * @param system     the System this kernel will be applied to
+     * @param force      the ExampleForce this kernel will be used for
+     */
+    void initialize(const OpenMM::System& system, const ContForce& force);
+    /**
+     * Execute the kernel to calculate the forces and/or energy.
+     *
+     * @param context        the context in which to execute this kernel
+     * @param includeForces  true if forces should be calculated
+     * @param includeEnergy  true if the energy should be calculated
+     * @return the potential energy due to the force
+     */
+    double execute(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy);
+    /**
+     * Copy changed parameters over to a context.
+     *
+     * @param context    the context to copy parameters to
+     * @param force      the ExampleForce to copy the parameters from
+     */
+    void copyParametersToContext(OpenMM::ContextImpl& context, const ContForce& force);
+private:
+    int numBonds;
+    bool hasInitializedKernel;
+    OpenMM::ComputeContext& cc;
+    const OpenMM::System& system;
+    OpenMM::ComputeArray params;
 };
 
-} // namespace ExamplePlugin
+} // namespace ContForcePlugin
 
-#endif /*OPENMM_COMMONEXAMPLEKERNELSOURCES_H_*/
+#endif /*COMMON_CONTFORCE_KERNELS_H_*/

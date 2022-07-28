@@ -35,7 +35,6 @@
 #include "ContForceKernels.h"
 #include "openmm/cuda/CudaContext.h"
 #include "openmm/cuda/CudaArray.h"
-#include "st"
 
 namespace ContForcePlugin {
 

@@ -1,12 +1,15 @@
+#ifndef CUDA_CONTFORCE_KERNELS_H_
+#define CUDA_CONTFORCE_KERNELS_H_
+
 /* -------------------------------------------------------------------------- *
- *                              OpenMMExample                                   *
+ *                                   OpenMM                                   *
  * -------------------------------------------------------------------------- *
  * This is part of the OpenMM molecular simulation toolkit originating from   *
  * Simbios, the NIH National Center for Physics-Based Simulation of           *
  * Biological Structures at Stanford, funded under the NIH Roadmap for        *
  * Medical Research, grant U54 GM072970. See https://simtk.org.               *
  *                                                                            *
- * Portions copyright (c) 2014 Stanford University and the Authors.           *
+ * Portions copyright (c) 2018 Stanford University and the Authors.           *
  * Authors: Peter Eastman                                                     *
  * Contributors:                                                              *
  *                                                                            *
@@ -29,44 +32,56 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-#include <exception>
+#include "ContForceKernels.h"
+#include "openmm/cuda/CudaContext.h"
+#include "openmm/cuda/CudaArray.h"
+#include "st"
 
-#include "CudaContForceKernelFactory.h"
-#include "CudaContForceKernels.h"
-#include "openmm/internal/windowsExport.h"
-#include "openmm/internal/ContextImpl.h"
-#include "openmm/OpenMMException.h"
+namespace ContForcePlugin {
 
-using namespace ContForcePlugin;
-using namespace OpenMM;
-
-extern "C" OPENMM_EXPORT void registerPlatforms() {
-}
-
-extern "C" OPENMM_EXPORT void registerKernelFactories() {
-    try {
-        Platform& platform = Platform::getPlatformByName("CUDA");
-        CudaContForceKernelFactory* factory = new CudaContForceKernelFactory();
-        platform.registerKernelFactory(CalcContForceKernel::Name(), factory);
+/**
+ * This kernel is invoked by ContForceForce to calculate the forces acting on the system and the energy of the system.
+ */
+class CudaCalcContForceKernel : public CalcContForceKernel {
+public:
+    CudaCalcContForceKernel(std::string name, const OpenMM::Platform& platform, OpenMM::CudaContext& cu) :
+	    CalcContForceKernel(name, platform), hasInitializedKernel(false), cu(cu) {
     }
-    catch (std::exception ex) {
-        // Ignore
-    }
-}
+    ~CudaCalcContForceKernel();
+    /**
+     * Initialize the kernel.
+     *
+     * @param system         the System this kernel will be applied to
+     * @param force          the ContForceForce this kernel will be used for
+     * @param module         the Pytorch model to use for computing forces and energy
+     */
+    void initialize(const OpenMM::System& system, const ContForce& force);
+    /**
+     * Execute the kernel to calculate the forces and/or energy.
+     *
+     * @param context        the context in which to execute this kernel
+     * @param includeForces  true if forces should be calculated
+     * @param includeEnergy  true if the energy should be calculated
+     * @return the potential energy due to the force
+     */
+    double execute(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy);
+    void copyParametersToContext(OpenMM::ContextImpl& context, const ContForce& force);
+private:
+    class CopyForcesTask;
+    bool hasInitializedKernel;
+    OpenMM::CudaContext& cu;
+    bool usePeriodic;
+    CUfunction addForcesKernel;
+    int numBonds;
+    std::vector<std::vector<int>> idxs;
+    std::vector<int> npart;
+    std::vector<double> length, k;
+    CUstream stream;
+    CUevent syncEvent;
+    OpenMM::CudaArray* contForces;
 
-extern "C" OPENMM_EXPORT void registerContForceCudaKernelFactories() {
-    try {
-        Platform::getPlatformByName("CUDA");
-    }
-    catch (...) {
-        Platform::registerPlatform(new CudaPlatform());
-    }
-    registerKernelFactories();
-}
+};
 
-KernelImpl* CudaContForceKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
-    CudaContext& cu = *static_cast<CudaPlatform::PlatformData*>(context.getPlatformData())->contexts[0];
-    if (name == CalcContForceKernel::Name())
-	  return new CudaCalcContForceKernel(name, platform, cu);
-    throw OpenMMException((std::string("Tried to create kernel with illegal kernel name '")+name+"'").c_str());
-}
+} // namespace ContForcePlugin
+
+#endif /*CUDA_CONTFORCE_KERNELS_H_*/

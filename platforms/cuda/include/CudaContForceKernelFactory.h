@@ -1,5 +1,5 @@
-#ifndef OPENMM_CUDACONTFORCEKERNELFACTORY_H_
-#define OPENMM_CUDACONTFORCEKERNELFACTORY_H_
+#ifndef OPENMM_CUDA_CONTFORCE_KERNEL_FACTORY_H_
+#define OPENMM_CUDA_CONTFORCE_KERNEL_FACTORY_H_
 
 /* -------------------------------------------------------------------------- *
  *                                   OpenMM                                   *
@@ -36,15 +36,15 @@
 
 namespace OpenMM {
 
-/**
- * This KernelFactory creates kernels for the CUDA implementation of the Example plugin.
- */
+  /**
+   * This KernelFactory creates kernels for the CUDA implementation of the Example plugin.
+   */
 
-class CudaContForceKernelFactory : public KernelFactory {
-public:
-    KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
-};
+  class CudaContForceKernelFactory : public KernelFactory {
+  public:
+	KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
+  };
 
 } // namespace OpenMM
 
-#endif /*OPENMM_CUDACONTFORCEKERNELFACTORY_H_*/
+#endif /*OPENMM_CUDA_CONTFORCE_KERNEL_FACTORY_H_*/

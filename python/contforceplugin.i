@@ -31,14 +31,14 @@ import simtk.unit as unit
 
 /*
  * Add units to function outputs.
-*/
-%pythonappend ContForcePlugin::ContForce::getBondParameters(int index, vector<int>& idxs, int& npart,
+
+%pythonappend ContForcePlugin::ContForce::getBondParameters(int index, std::vector<int>& idxs, int& npart,
                                                              double& length, double& k) const %{
     val[2] = unit.Quantity(val[2], unit.nanometer)
     val[3] = unit.Quantity(val[3], unit.kilojoule_per_mole/unit.nanometer**4)
 %}
 
-/*
+
  * Convert C++ exceptions to Python exceptions.
 */
 %exception {

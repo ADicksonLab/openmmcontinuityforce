@@ -5,9 +5,9 @@
 # Collect up information about the version of the OpenMM library we're building
 # and make it available to the code so it can be built into the binaries.
 
-SET(OPENMMCONTFORCEREFERENCE_LIBRARY_NAME ContForcePluginReference)
+SET(CONTFORCE_REFERENCE_LIBRARY_NAME ContForcePluginReference)
 
-SET(SHARED_TARGET ${OPENMMCONTFORCEREFERENCE_LIBRARY_NAME})
+SET(SHARED_TARGET ${CONTFORCE_REFERENCE_LIBRARY_NAME})
 
 
 # These are all the places to search for header files which are

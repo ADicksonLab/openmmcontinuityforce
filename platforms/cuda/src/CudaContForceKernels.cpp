@@ -36,7 +36,7 @@
 #include "openmm/reference/RealVec.h"
 #include <map>
 #include <cuda_runtime_api.h>
-#include<algorithm>
+#include <algorithm>
 #include <cstring>
 using namespace ContForcePlugin;
 using namespace OpenMM;
@@ -99,11 +99,12 @@ void CudaCalcContForceKernel::initialize(const System& system, const ContForce& 
 	int numBonds = force.getNumBonds();
 	idxs.resize(numBonds);
 	npart.resize(numBonds);
-	length.resize(numBonds);
+	length.resize(numBonds);	
 	k.resize(numBonds);
-	for (int i = 0; i < numBonds; i++)
-		force.getBondParameters(i, idxs[i], npart[i], length[i], k[i]);
-
+	for (int i = 0; i < numBonds; i++) {
+	  idxs[i].resize(1);
+	  force.getBondParameters(i, idxs[i], npart[i], length[i], k[i]);
+	}
 	// Inititalize CUDA objects.
 	cu.setAsCurrent();
 	cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING);
@@ -251,10 +252,10 @@ void CudaCalcContForceKernel::copyParametersToContext(ContextImpl& context, cons
 	if (force.getNumBonds() != npart.size())
 		throw OpenMMException("updateParametersInContext: The number of bonds has changed");
 	for (int i = 0; i < force.getNumBonds(); i++) {
-		vector<int> test_idxs;
-		int test_npart;
-		force.getBondParameters(i, test_idxs, test_npart, length[i], k[i]);
-		if (test_npart != npart[i] || test_idxs != idxs[i])
-			throw OpenMMException("updateParametersInContext: A particle index has changed");
+	  vector<int> test_idxs(1,1);
+	  int test_npart;
+	  force.getBondParameters(i, test_idxs, test_npart, length[i], k[i]);
+	  if (test_npart != npart[i] || test_idxs != idxs[i])
+		throw OpenMMException("updateParametersInContext: A particle index has changed");
 	}
 }

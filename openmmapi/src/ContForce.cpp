@@ -46,20 +46,22 @@ int ContForce::addBond(std::vector<int> idxs, int npart, double length, double k
     return bonds.size()-1;
 }
 
-void ContForce::getBondParameters(int index, std::vector<int>& idxs, int& npart, double& length, double& k) const {
+void ContForce::getBondParameters(int index, std::vector<int>& loc_idxs, int& loc_npart, double& loc_length, double& loc_k) const {
     ASSERT_VALID_INDEX(index, bonds);
-    idxs = bonds[index].idxs;
-    npart = bonds[index].npart;
-    length = bonds[index].length;
-    k = bonds[index].k;
+    loc_idxs.clear();
+	for(int idx : bonds[index].idxs)
+	  loc_idxs.push_back(idx);
+    loc_npart = bonds[index].npart;
+    loc_length = bonds[index].length;
+    loc_k = bonds[index].k;
 }
 
-void ContForce::setBondParameters(int index, std::vector<int> idxs, int npart, double length, double k) {
+void ContForce::setBondParameters(int index, std::vector<int> loc_idxs, int loc_npart, double loc_length, double loc_k) {
     ASSERT_VALID_INDEX(index, bonds);
-    bonds[index].idxs = idxs;
-    bonds[index].npart = npart;
-    bonds[index].length = length;
-    bonds[index].k = k;
+    bonds[index].idxs = loc_idxs;
+    bonds[index].npart = loc_npart;
+    bonds[index].length = loc_length;
+    bonds[index].k = loc_k;
 }
 
 ForceImpl* ContForce::createImpl() const {

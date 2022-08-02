@@ -70,7 +70,7 @@ public:
      * @param length    the equilibrium length of the bond, measured in nm
      * @param k         the harmonic force constant for the bond, measured in kJ/mol/nm^4
      */
-    void getBondParameters(int index, std::vector<int>& idxs, int& npart, double& length, double& k) const;
+    void getBondParameters(int index, std::vector<int>& loc_idxs, int& loc_npart, double& loc_length, double& loc_k) const;
     /**
      * Set the force field parameters for a bond term.
      * 
@@ -80,7 +80,7 @@ public:
      * @param length    the equilibrium length of the bond, measured in nm
      * @param k         the harmonic force constant for the bond, measured in kJ/mol/nm^4
      */
-    void setBondParameters(int index, std::vector<int> idxs, int npart, double length, double k);
+    void setBondParameters(int index, std::vector<int> loc_idxs, int loc_npart, double loc_length, double loc_k);
     /**
      * Update the per-bond parameters in a Context to match those stored in this Force object.  This method provides
      * an efficient method to update certain parameters in an existing Context without needing to reinitialize it.
@@ -116,12 +116,12 @@ public:
     int npart;
     double length, k;
     BondInfo() {
-  	    idxs = {};
-	    npart = 0;
-		length = k = 0.0;
+	  idxs.clear();
+	  npart = 0;
+	  length = k = 0.0;
     }
-  BondInfo(std::vector<int> idxs, int npart, double length, double k) :
-	idxs(idxs), npart(npart), length(length), k(k) {
+  BondInfo(std::vector<int> bi_idxs, int bi_npart, double bi_length, double bi_k) :
+	idxs(bi_idxs), npart(bi_npart), length(bi_length), k(bi_k) {
   }
 };
 

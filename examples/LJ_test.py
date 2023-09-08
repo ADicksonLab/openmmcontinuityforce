@@ -2,11 +2,21 @@ import simtk.openmm as omm
 import simtk.openmm.app as omma
 import openmm.unit as unit
 import numpy as np
+import os
 
 from contforceplugin import ContForce
 
 # change the path below to point to where you installed the plugin
-omm.Platform.loadPluginsFromDirectory('/path/to/your/conda/pkgs/openmm-7.7.0-py39h9717219_0/lib/plugins')
+openmm_path = sys.argv[1]
+plugins_path = osp.join(openmm_path,'lib','plugins')
+
+if not os.path.exists(openmm_path):
+    print(f"Error! openmm_path: {openmm_path} does not exist")
+elif not os.path.exists(plugins_path):
+    print(f"Error! openmm_path: {openmm_path} does not contain lib/plugins directory")
+    print("e.g.: /path/to/your/conda/pkgs/openmm-7.7.0-py39h9717219_0/lib/plugins")
+
+omm.Platform.loadPluginsFromDirectory(plugins_path)
 
 npart = 20
 mass = 10
@@ -28,7 +38,7 @@ for i in range(npart):
 system.addForce(nbforce)
 
 integrator = omm.LangevinIntegrator(300,100.0,0.002)  # using a high friction coefficient
-platform = omm.Platform_getPlatformByName('Reference')
+platform = omm.Platform.getPlatformByName('Reference')
 top = omma.Topology()
 ch = top.addChain()
 for i in range(npart):

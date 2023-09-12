@@ -16,35 +16,48 @@ the particles and d is a user-defined cutoff distance.
 
 This was originally designed to aid FlexibleTopology simulations ([preprint](https://chemrxiv.org/engage/chemrxiv/article-details/626be58411b14616eb34a3f4)).  This plugin was made using the ["OpenMMExamplePlugin" template](https://github.com/openmm/openmmexampleplugin).
 
-Building The Plugin
+Preparing the Environment
 ===================
 
-This project uses [CMake](http://www.cmake.org) for its build system.  To build it, follow these
-steps:
+I recommend using a CONDA environment for easy installation. Before installing this plugin,
+you should create this environment and install the openmm and swig packages:
+```
+conda install -c conda-forge openmm
+conda install swig
+```
+If you need to install cmake this can also be done using CONDA:
+```
+conda install cmake
+```
+
+Building/Installing The Plugin
+===================
+
+To build and install `openmmcontinuityforce`, follow these steps:
 
 1. Clone this repository to your own machine.
 
-2. Create a directory in which to build the plugin.  I suggest openmmcontinuityforce/build.
+2. Create a directory in which to build the plugin.  I suggest `openmmcontinuityforce/build`.
 
 3. Change to the build directory, and run cmake: `cmake ..` and open ccmake: `ccmake ..`
 
 4. Set OPENMM_DIR to point to the directory where OpenMM is installed.  This is needed to locate
 the OpenMM header files and libraries.  If you are using CONDA, this directory will be something
-like: `/your/path/to/conda/pkgs/openmm-7.7.0-py39h9717219_0`.  Your particular version and build
-of OpenMM can be found by running `conda list | grep openmm`.
+like: `/your/path/to/conda/pkgs/openmm-7.7.0-py39h9717219_0`. NOTE: this is the `pkgs` directory and
+not the `envs` directory!
+
+Your particular version and build of OpenMM installed in this environment can be found by
+running `conda list | grep openmm`.
 
 5. Set CMAKE_INSTALL_PREFIX to the directory where the plugin should be installed.  I suggest making
 this the same as OPENMM_DIR, so the plugin will be added to your OpenMM installation.
 
-6. If you plan to build the OpenCL platform, make sure that OPENCL_INCLUDE_DIR and
-OPENCL_LIBRARY are set correctly, and that BUILD_OPENCL_LIB is selected.
-
-7. If you plan to build the CUDA platform, make sure that CUDA_TOOLKIT_ROOT_DIR is set correctly
+6. If you plan to build the CUDA platform, make sure that CUDA_TOOLKIT_ROOT_DIR is set correctly
 and that BUILD_CUDA_LIB is selected.
 
-8. Press "Configure" again if necessary, then press "Generate".
+7. Press "Configure" again if necessary, then press "Generate".
 
-9. Type `make install`, followed by `make PythonInstall`.
+8. Type `make install`, followed by `make PythonInstall`.
 
 
 Test Cases

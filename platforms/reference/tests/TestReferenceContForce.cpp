@@ -107,11 +107,63 @@ void testChangingParameters() {
 	ASSERT_EQUAL_TOL(k2*pow(1.0-length2, 2), state.getPotentialEnergy(), 1e-5);
 }
 
+void testMultipleBonds() {
+	// Create a system of 10 atoms connected with a continuity force
+
+	const int numParticles = 3;
+	System system;
+	vector<Vec3> positions(numParticles);
+	system.addParticle(1.0);
+	system.addParticle(1.0);
+	system.addParticle(1.0);
+
+	positions[0] = Vec3(0, 0, 0);
+	positions[1] = Vec3(-1, 0, 0);
+	positions[2] = Vec3(1, 0, 0);
+
+	ContForce* force = new ContForce();
+	system.addForce(force);
+	vector<int> idxs1 = {0,1};
+	vector<int> idxs2 = {0,2};
+	force->addBond(idxs1, 2, 0.5, 17);
+	force->addBond(idxs2, 2, 0.5, 17);
+
+	// Compute the forces and energy.
+
+	VerletIntegrator integ(1.0);
+	Platform& platform = Platform::getPlatformByName("Reference");
+	Context context(system, integ, platform);
+	context.setPositions(positions);
+	State state = context.getState(State::Energy | State::Forces);
+
+	// See if the energy is correct.
+
+	double length = 0.5;
+	double k = 17;
+	Vec3 delta1 = positions[1]-positions[0];
+	double dr1 = sqrt(delta1.dot(delta1))-length;
+	double expectedEnergy1 = k*dr1*dr1;
+
+	Vec3 delta2 = positions[2]-positions[0];
+	double dr2 = sqrt(delta2.dot(delta2))-length;
+	double expectedEnergy2 = k*dr2*dr2;
+
+	ASSERT_EQUAL_TOL(expectedEnergy1 + expectedEnergy2, state.getPotentialEnergy(), 1e-5);
+
+	// Force on atom 0 should be zero
+
+	ASSERT_EQUAL_TOL(state.getForces()[0][0], 0.0, 1e-5);
+	ASSERT_EQUAL_TOL(state.getForces()[0][1], 0.0, 1e-5);
+	ASSERT_EQUAL_TOL(state.getForces()[0][2], 0.0, 1e-5);
+
+}
+
 int main() {
 	try {
 		registerExampleReferenceKernelFactories();
 		testForce();
 		testChangingParameters();
+		testMultipleBonds();
 	}
 	catch(const std::exception& e) {
 		std::cout << "exception: " << e.what() << std::endl;

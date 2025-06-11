@@ -1,20 +1,9 @@
-import simtk.openmm as omm
-import simtk.openmm.app as omma
+import openmm as omm
+import openmm.app as omma
 import openmm.unit as unit
 import numpy as np
 
 from contforceplugin import ContForce
-
-openmm_path = sys.argv[1]
-plugins_path = osp.join(openmm_path,'lib','plugins')
-
-if not os.path.exists(openmm_path):
-    print(f"Error! openmm_path: {openmm_path} does not exist")
-elif not os.path.exists(plugins_path):
-    print(f"Error! openmm_path: {openmm_path} does not contain lib/plugins directory")
-    print("e.g.: /path/to/your/conda/pkgs/openmm-7.7.0-py39h9717219_0/lib/plugins")
-
-omm.Platform.loadPluginsFromDirectory(plugins_path)
 
 npart = 20
 mass = 10

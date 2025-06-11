@@ -1,6 +1,6 @@
 %module contforceplugin
 
-%import(module="simtk.openmm") "swig/OpenMMSwigHeaders.i"
+%import(module="openmm") "swig/OpenMMSwigHeaders.i"
 %include "swig/typemaps.i"
 
 /*
@@ -25,8 +25,8 @@ namespace std {
 %}
 
 %pythoncode %{
-import simtk.openmm as mm
-import simtk.unit as unit
+import openmm as mm
+import openmm.unit as unit
 %}
 
 /*

@@ -73,17 +73,10 @@ To run all the test cases build the "test" target by typing `make test`.
 Accessing ContinuityForce in Python
 ==========
 
-There are different ways to make the plugin accessible in a python script.
-I recommend including the following line in your python script:
-```
-omm.Platform.loadPluginsFromDirectory('/path/to/your/anaconda/pkgs/openmm-7.7.0-py39h9717219_0/lib/plugins')
-```
-where again you will likely need to change the version and build of OpenMM to match that
-on your machine.
-
-You can then use the plugin in your Python scripts:
+You can use the plugin in your Python scripts:
 ```
 from openmmcontinuityforce import ContinuityForce
 force = ContinuityForce()
 ```
 
+For an illustrative example, check out `LJ_test.py` in the `examples` folder.
